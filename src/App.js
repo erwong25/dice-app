@@ -5,7 +5,7 @@ import "./App.css";
 import roll from "./dice.js";
 import { useState } from "react";
 import DiceResultsSection from "./DiceResultsSection";
-import React from "React";
+import React from "react";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
@@ -16,14 +16,19 @@ function App(): React.Node {
   function handleSubmit(e: Event) {
     e.preventDefault();
     setStatus("submitting");
+    let diceSizeInt = parseInt(diceSize);
+    let shouldError = diceSizeInt <= 0 || isNaN(diceSizeInt);
     try {
-      if (result.has(diceSize)) {
+      if (shouldError) {
+        throw new Error("Not a valid number");
+      }
+      else if (result.has(diceSizeInt)) {
         let resultUpdate = result;
-        resultUpdate.get(diceSize).push(rollDice(diceSize));
+        resultUpdate.get(diceSizeInt).push(rollDice(diceSizeInt));
         setResult(new Map(resultUpdate));
       } else {
         let resultUpdate = result;
-        result.set(diceSize, [rollDice(diceSize)]);
+        result.set(diceSizeInt, [rollDice(diceSizeInt)]);
         setResult(new Map(resultUpdate));
       }
       setStatus("typing");
@@ -33,7 +38,7 @@ function App(): React.Node {
     }
   }
 
-  function handleTextareaChange(e) {
+  function handleTextareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
     setDiceSize(e.target.value);
   }
 
@@ -66,13 +71,7 @@ function App(): React.Node {
 }
 
 function rollDice(diceSize: String): number {
-  let diceSizeInt = parseInt(diceSize);
-  let shouldError = diceSizeInt <= 0 || isNaN(diceSizeInt);
-  if (shouldError) {
-    throw new Error("Not a valid number");
-  } else {
-    return roll(diceSizeInt);
-  }
+    return roll(diceSize);
 }
 
 //presets
