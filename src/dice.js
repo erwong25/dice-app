@@ -1,5 +1,8 @@
-export default function roll(num) {
-    return Math.floor(Math.random() * (num) + 1);
+// @flow
+import React from "react";
+
+export default function roll(num: String): number {
+    return Math.floor(Math.random() * (parseInt(num)) + 1);
 }
 
 // function getRandomInt(min, max) {

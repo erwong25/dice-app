@@ -5,7 +5,7 @@ import "./App.css";
 import roll from "./dice.js";
 import { useState } from "react";
 import DiceResultsSection from "./DiceResultsSection";
-import React from "react";
+import * as React from "react";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
@@ -24,11 +24,11 @@ function App(): React.Node {
       }
       else if (result.has(diceSizeInt)) {
         let resultUpdate = result;
-        resultUpdate.get(diceSizeInt).push(rollDice(diceSizeInt));
+        resultUpdate.get(diceSizeInt).push(roll(diceSize));
         setResult(new Map(resultUpdate));
       } else {
         let resultUpdate = result;
-        result.set(diceSizeInt, [rollDice(diceSizeInt)]);
+        result.set(diceSizeInt, [roll(diceSize)]);
         setResult(new Map(resultUpdate));
       }
       setStatus("typing");
@@ -70,9 +70,6 @@ function App(): React.Node {
   );
 }
 
-function rollDice(diceSize: String): number {
-    return roll(diceSize);
-}
 
 //presets
 //  display names of presets
