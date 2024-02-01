@@ -1,0 +1,30 @@
+function handleSubmit(e: Event) {
+  e.preventDefault();
+  setStatus("submitting");
+  setParseDice(diceSize.split("d"));
+  console.log(parseDice);
+  //setParseDice is async, idk how to get it to console.log(parseDice), only shows up previous run's parseDice
+  let shouldError = !parseDice.some((i) => !Number.isInteger(i));
+  try {
+    if (shouldError) {
+      throw new Error("Not a valid input");
+    } else {
+      let resultUpdate = result;
+      // setResult(
+      //   new Map([
+      //     ["5", [3]],
+      //     ["8", [4, 5]],
+      //   ])
+      // );
+      let diceSizeInt = diceSize[0];
+      result.has(diceSizeInt)
+        ? resultUpdate.get(diceSizeInt).push(roll(diceSizeInt))
+        : result.set(diceSizeInt, [roll(diceSizeInt)]);
+      setResult(new Map(resultUpdate));
+    }
+    setStatus("typing");
+  } catch (err) {
+    setStatus("typing");
+    setError(err);
+  }
+}
