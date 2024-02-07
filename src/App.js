@@ -25,24 +25,49 @@ function App(): React.Node {
   function handleSubmit(e: Event) {
     e.preventDefault();
     setStatus("submitting");
+    setJoinDice(diceSize.split("d"));
     let parseDice = diceSize.split("d");
-    let diceSizeInt = parseInt(diceSize);
-    let shouldError = !parseDice.some((i) => !Number.isInteger(i));
+    // shouldError should be true if any of the elements in the array are not numbers
+    let shouldError = parseDice.some((i) => {
+      let ret = !Number.isInteger(parseInt(i));
+      console.log(i, ret);
+      return ret;
+    });
+    console.log("shouldError:", shouldError);
+    //arrow function, need to understand the syntax better (structure, which part means what, maybe when to use it?)
     //setParseDice is async or parseDice is async so its not updating before the rest of the code goes through
     //need to call the split somewhere else probably
+    //implement for loop, where do i start the loop? do i do it before try or do it inside that around the if/else part
     try {
       if (shouldError) {
         throw new Error("Not a valid number");
-      } else if (result.has(diceSizeInt)) {
-        let resultUpdate = result;
-        resultUpdate.get(diceSizeInt).push(roll(diceSizeInt));
-        setResult(new Map(resultUpdate));
-        setJoinDice(parseDice);
       } else {
-        let resultUpdate = result;
-        result.set(diceSizeInt, [roll(diceSizeInt)]);
-        setResult(new Map(resultUpdate));
-        setJoinDice(parseDice);
+        setError(null);
+      }
+
+      if (parseDice.length == 2) {
+        for (let i = 0; i < parseDice[0]; i++) {
+          if (result.has(parseDice[1])) {
+            let resultUpdate = result;
+            resultUpdate.get(parseDice[1]).push(roll(parseDice[1]));
+            setResult(new Map(resultUpdate));
+          } else {
+            let resultUpdate = result;
+            result.set(parseDice[1], [roll(parseDice[1])]);
+            setResult(new Map(resultUpdate));
+          }
+        }
+      }
+      if (parseDice.length == 1) {
+        if (result.has(parseDice[0])) {
+          let resultUpdate = result;
+          resultUpdate.get(parseDice[0]).push(roll(parseDice[0]));
+          setResult(new Map(resultUpdate));
+        } else {
+          let resultUpdate = result;
+          result.set(parseDice[0], [roll(parseDice[0])]);
+          setResult(new Map(resultUpdate));
+        }
       }
       setStatus("typing");
     } catch (err) {
@@ -96,7 +121,7 @@ function App(): React.Node {
             <input
               type="text"
               value={diceSize}
-              //what value={diceSize} mean?
+              //what value={diceSize} mean? I think its saying that the value SHOULD be the value of diceSize but it isn't mandating anything
               onChange={handleTextareaChange}
               disabled={status === "submitting"}
             />
