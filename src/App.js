@@ -126,7 +126,13 @@ function App(): React.Node {
           <p>
             {[...spells.keys()].map((k) => (
               <div>
-                <button>{k}</button>
+                <button
+                  onClick={() => {
+                    setDiceSize(spells.get(k));
+                  }}
+                >
+                  {k}
+                </button>
                 <br />
               </div>
             ))}
