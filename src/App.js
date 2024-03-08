@@ -5,14 +5,22 @@ import "./App.css";
 import roll from "./dice.js";
 import { useState } from "react";
 import DiceResultsSection from "./DiceResultsSection";
+import NumDiceRoll from "./NumDiceRoll.js";
 import * as React from "react";
+import SpellsButtons from "./SpellsButtons.js";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
-  const [joinDice, setJoinDice] = useState([]);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState("typing");
   const [result, setResult] = useState(new Map<number, Array<number>>());
+  const [cookie, setCookie] = useState("");
+  const [spells, setSpells] = useState(
+    new Map([
+      ["sleep", "5d8"],
+      ["cloud of daggers", "2d4"],
+    ])
+  );
 
   //how to parse 2d8 instead of single number
   //  let diceSizeInt = parseInt(diceSize); only takes a single number
@@ -22,53 +30,16 @@ function App(): React.Node {
   // it also has to split using the d
   // find some way to make sure it works even if the d is in the middle of a word, should be fine since other things wont be numbers
 
+  //hard code map
+  //generate buttons for each spell in map
+
   function handleSubmit(e: Event) {
     e.preventDefault();
     setStatus("submitting");
-    setJoinDice(diceSize.split("d"));
-    let parseDice = diceSize.split("d");
-    // shouldError should be true if any of the elements in the array are not numbers
-    let shouldError = parseDice.some((i) => {
-      let ret = !Number.isInteger(parseInt(i));
-      console.log(i, ret);
-      return ret;
-    });
-    console.log("shouldError:", shouldError);
-    //arrow function, need to understand the syntax better (structure, which part means what, maybe when to use it?)
-    //setParseDice is async or parseDice is async so its not updating before the rest of the code goes through
-    //need to call the split somewhere else probably
-    //implement for loop, where do i start the loop? do i do it before try or do it inside that around the if/else part
+    let NumDice = spells.has(diceSize) ? spells.get(diceSize) : diceSize;
     try {
-      if (shouldError) {
-        throw new Error("Not a valid number");
-      } else {
-        setError(null);
-      }
-
-      if (parseDice.length == 2) {
-        for (let i = 0; i < parseDice[0]; i++) {
-          if (result.has(parseDice[1])) {
-            let resultUpdate = result;
-            resultUpdate.get(parseDice[1]).push(roll(parseDice[1]));
-            setResult(new Map(resultUpdate));
-          } else {
-            let resultUpdate = result;
-            result.set(parseDice[1], [roll(parseDice[1])]);
-            setResult(new Map(resultUpdate));
-          }
-        }
-      }
-      if (parseDice.length == 1) {
-        if (result.has(parseDice[0])) {
-          let resultUpdate = result;
-          resultUpdate.get(parseDice[0]).push(roll(parseDice[0]));
-          setResult(new Map(resultUpdate));
-        } else {
-          let resultUpdate = result;
-          result.set(parseDice[0], [roll(parseDice[0])]);
-          setResult(new Map(resultUpdate));
-        }
-      }
+      setResult(NumDiceRoll(NumDice, result)); //either returns result or throws error
+      setError(null);
       setStatus("typing");
     } catch (err) {
       setStatus("typing");
@@ -112,6 +83,22 @@ function App(): React.Node {
     setDiceSize(e.target.value);
   }
 
+  document.cookie = "name=oeschger; SameSite=None; Secure";
+  document.cookie = "favorite_food=tripe; SameSite=None; Secure";
+
+  function showCookies() {
+    setCookie(document.cookie);
+  }
+
+  function clearOutputCookies() {
+    setCookie("");
+  }
+
+  function SpelltoForm(k) {
+    // console.log("currentvalue", k);
+    // document.getElementById("currentSize").value = k;
+  }
+
   return (
     <>
       <div className="App">
@@ -119,9 +106,9 @@ function App(): React.Node {
           <p>How many sides?</p>
           <form onSubmit={handleSubmit}>
             <input
+              id="currentSize"
               type="text"
               value={diceSize}
-              //what value={diceSize} mean? I think its saying that the value SHOULD be the value of diceSize but it isn't mandating anything
               onChange={handleTextareaChange}
               disabled={status === "submitting"}
             />
@@ -134,8 +121,20 @@ function App(): React.Node {
             </button>
             {error !== null && <p className="Error">{error.message}</p>}
             {DiceResultsSection(result)}
-            {joinDice.join(", ")}
           </form>
+          {/* {SpellsButtons(spells)} */}
+          <p>
+            {[...spells.keys()].map((k) => (
+              <div>
+                <button>{k}</button>
+                <br />
+              </div>
+            ))}
+          </p>
+          <button onClick={showCookies}>Show cookies</button>
+          <br />
+          <button onClick={clearOutputCookies}>Clear</button>
+          {cookie}
         </header>
       </div>
     </>
