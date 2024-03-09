@@ -1,7 +1,7 @@
 import roll from "./dice";
 
 export default function NumDiceRoll(diceSize, result) {
-  let parseDice = diceSize.split("d");
+  let parseDice = diceSize[0].split("d");
   let shouldError = parseDice.some((i) => {
     let ret = !Number.isInteger(parseInt(i));
     return ret;

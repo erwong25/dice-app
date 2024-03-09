@@ -24,10 +24,10 @@ function App(): React.Node {
   const [searchValue, setSearchValue] = useState("");
   const [spells, setSpells] = useState(
     new Map([
-      ["sleep", "5d8"],
-      ["cloud of daggers", "2d4"],
-      ["eldritch blast", "1d10"],
-      ["dissonant whispers", "3d6"],
+      ["sleep", ["5d8", 1, "2d8"]],
+      ["cloud of daggers", ["4d4", 2, "2d4"]],
+      ["eldritch blast", ["1d10", 0, "1d10"]],
+      ["dissonant whispers", ["3d6", 1, "1d6"]],
     ])
   );
 
@@ -40,6 +40,7 @@ function App(): React.Node {
       setError(null);
       setStatus("typing");
     } catch (err) {
+      console.log(diceSize);
       setStatus("typing");
       setError(err);
     }
@@ -50,6 +51,7 @@ function App(): React.Node {
     setStatus("submitting");
     try {
       setSpells(AddNewSpell(newSpell, newDice, spells));
+      spellSort();
       setSpellError(null);
       setStatus("typing");
     } catch (err) {
@@ -100,6 +102,10 @@ function App(): React.Node {
 
   function clearOutputCookies() {
     setCookie("");
+  }
+
+  function spellSort() {
+    setSpells(new Map([...spells.entries()].sort()));
   }
 
   return (
@@ -208,6 +214,7 @@ function App(): React.Node {
               <p className="Error">{removalError.message}</p>
             )}
           </form>
+          <button onClick={spellSort}>Sort spells</button>
           <button onClick={showCookies}>Show cookies</button>
           <br />
           <button onClick={clearOutputCookies}>Clear</button>
@@ -220,9 +227,6 @@ function App(): React.Node {
 
 //Login, Profiles, DB
 //Upcasting (button for upcasting, how much it changes dice (take XdY and add value to Y), level of spell (limit how much it can be cast to higher level))
-//Sorting Spells by alphabetical order (create new Map, add spells to map in alphabetical order, save new map)
 //Hide/show spells section (only manual input visible by default)
-
-//added search function
 
 export default App;

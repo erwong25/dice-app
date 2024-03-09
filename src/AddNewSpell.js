@@ -11,7 +11,7 @@ export default function AddNewSpell(newSpell, newDice, spells) {
     throw new Error("Spell already exists");
   } else {
     let spellsUpdate = spells;
-    spellsUpdate.set(newSpell, newDice);
+    spellsUpdate.set(newSpell, [newDice]);
     return new Map(spellsUpdate);
   }
 }
