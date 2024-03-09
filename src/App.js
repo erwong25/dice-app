@@ -2,36 +2,34 @@
 
 import logo from "./logo.svg";
 import "./App.css";
-import roll from "./dice.js";
 import { useState } from "react";
 import DiceResultsSection from "./DiceResultsSection";
 import NumDiceRoll from "./NumDiceRoll.js";
 import * as React from "react";
 import SpellsButtons from "./SpellsButtons.js";
+import AddNewSpell from "./AddNewSpell.js";
+import DeleteSpell from "./DeleteSpell.js";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
   const [error, setError] = useState(null);
+  const [spellError, setSpellError] = useState(null);
+  const [removalError, setRemovalError] = useState(null);
   const [status, setStatus] = useState("typing");
   const [result, setResult] = useState(new Map<number, Array<number>>());
   const [cookie, setCookie] = useState("");
+  const [newSpell, setNewSpell] = useState("");
+  const [newDice, setNewDice] = useState("");
+  const [removeSpell, setRemoveSpell] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [spells, setSpells] = useState(
     new Map([
       ["sleep", "5d8"],
       ["cloud of daggers", "2d4"],
+      ["eldritch blast", "1d10"],
+      ["dissonant whispers", "3d6"],
     ])
   );
-
-  //how to parse 2d8 instead of single number
-  //  let diceSizeInt = parseInt(diceSize); only takes a single number
-  // let shouldError = diceSizeInt <= 0 || isNaN(diceSizeInt); also only works if it is a single number
-  // resolve this issue by building it around an array instead of single number
-  // first thing is to take the input and turn it into an array
-  // it also has to split using the d
-  // find some way to make sure it works even if the d is in the middle of a word, should be fine since other things wont be numbers
-
-  //hard code map
-  //generate buttons for each spell in map
 
   function handleSubmit(e: Event) {
     e.preventDefault();
@@ -47,40 +45,50 @@ function App(): React.Node {
     }
   }
 
-  // function handleSubmit(e: Event) {
-  //   e.preventDefault();
-  //   setStatus("submitting");
-  //   if (diceSize.includes("d")) {
-  //     setResult(
-  //       new Map([
-  //         ["5", [3]],
-  //         ["8", [4, 5]],
-  //       ])
-  //     );
-  //     setStatus("typing");
-  //   } else {
-  //     let diceSizeInt = parseInt(diceSize);
-  //     let shouldError = diceSizeInt <= 0 || isNaN(diceSizeInt);
-  //     try {
-  //       if (shouldError) {
-  //         throw new Error("Not a valid number");
-  //       } else {
-  // let resultUpdate = result;
-  // result.has(diceSizeInt)
-  //   ? resultUpdate.get(diceSizeInt).push(roll(diceSize))
-  //   : result.set(diceSizeInt, [roll(diceSize)]);
-  // setResult(new Map(resultUpdate));
-  //       }
-  //       setStatus("typing");
-  //     } catch (err) {
-  //       setStatus("typing");
-  //       setError(err);
-  //     }
-  //   }
-  // }
+  function spellSubmit(e) {
+    e.preventDefault();
+    setStatus("submitting");
+    try {
+      setSpells(AddNewSpell(newSpell, newDice, spells));
+      setSpellError(null);
+      setStatus("typing");
+    } catch (err) {
+      setStatus("typing");
+      setSpellError(err);
+    }
+  }
+
+  function spellRemoval(e) {
+    e.preventDefault();
+    setStatus("submitting");
+    try {
+      setSpells(DeleteSpell(removeSpell, spells));
+      setRemovalError(null);
+      setStatus("typing");
+    } catch (err) {
+      setStatus("typing");
+      setRemovalError(err);
+    }
+  }
 
   function handleTextareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
     setDiceSize(e.target.value);
+  }
+
+  function handleSpellareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
+    setNewSpell(e.target.value);
+  }
+
+  function handleDiceareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
+    setNewDice(e.target.value);
+  }
+
+  function handleRemovalareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
+    setRemoveSpell(e.target.value);
+  }
+
+  function handleSearchareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
+    setSearchValue(e.target.value);
   }
 
   document.cookie = "name=oeschger; SameSite=None; Secure";
@@ -94,11 +102,6 @@ function App(): React.Node {
     setCookie("");
   }
 
-  function SpelltoForm(k) {
-    // console.log("currentvalue", k);
-    // document.getElementById("currentSize").value = k;
-  }
-
   return (
     <>
       <div className="App">
@@ -106,7 +109,6 @@ function App(): React.Node {
           <p>How many sides?</p>
           <form onSubmit={handleSubmit}>
             <input
-              id="currentSize"
               type="text"
               value={diceSize}
               onChange={handleTextareaChange}
@@ -122,21 +124,90 @@ function App(): React.Node {
             {error !== null && <p className="Error">{error.message}</p>}
             {DiceResultsSection(result)}
           </form>
-          {/* {SpellsButtons(spells)} */}
           <p>
-            {[...spells.keys()].map((k) => (
-              <div>
-                <button
-                  onClick={() => {
-                    setDiceSize(spells.get(k));
-                  }}
-                >
-                  {k}
-                </button>
-                <br />
-              </div>
-            ))}
+            {" "}
+            {/* spellsbuttons */}
+            {[...spells.keys()].map(
+              (k) =>
+                k.includes(searchValue) && (
+                  <div>
+                    <button
+                      onClick={() => {
+                        setDiceSize(spells.get(k));
+                      }}
+                    >
+                      {k}
+                    </button>
+                    <br />
+                  </div>
+                )
+            )}
           </p>
+          <form>
+            Search:{""}
+            <input
+              type="text"
+              value={searchValue}
+              onChange={handleSearchareaChange}
+              disabled={status === "submitting"}
+            />
+          </form>
+          <p>Add a new spell</p>
+          <form onSubmit={spellSubmit}>
+            Spell name:{" "}
+            <input
+              type="text"
+              value={newSpell}
+              onChange={handleSpellareaChange}
+              disabled={status === "submitting"}
+            />
+            <br />
+            Dice rolled:{" "}
+            <input
+              type="text"
+              value={newDice}
+              onChange={handleDiceareaChange}
+              disabled={status === "submitting"}
+            />
+            <br />
+            {newDice !== "" && newSpell !== "" ? (
+              <button
+                type="submit"
+                disabled={
+                  newDice.length === 0 ||
+                  newSpell.length === 0 ||
+                  status === "submitting"
+                }
+              >
+                Add Spell
+              </button>
+            ) : (
+              <br />
+            )}
+            {spellError !== null && (
+              <p className="Error">{spellError.message}</p>
+            )}
+          </form>
+          <form onSubmit={spellRemoval}>
+            Remove spell:{" "}
+            <input
+              type="text"
+              value={removeSpell}
+              onChange={handleRemovalareaChange}
+              disabled={status === "submitting"}
+            />
+            {removeSpell !== "" && (
+              <button
+                type="submit"
+                disabled={removeSpell.length === 0 || status === "submitting"}
+              >
+                Remove Spell
+              </button>
+            )}
+            {removalError !== null && (
+              <p className="Error">{removalError.message}</p>
+            )}
+          </form>
           <button onClick={showCookies}>Show cookies</button>
           <br />
           <button onClick={clearOutputCookies}>Clear</button>
@@ -147,13 +218,11 @@ function App(): React.Node {
   );
 }
 
-//presets
-//  display names of presets
-//  multiple dice
-//  adding presets
-//sums
+//Login, Profiles, DB
+//Upcasting (button for upcasting, how much it changes dice (take XdY and add value to Y), level of spell (limit how much it can be cast to higher level))
+//Sorting Spells by alphabetical order (create new Map, add spells to map in alphabetical order, save new map)
+//Hide/show spells section (only manual input visible by default)
 
-//be able to understand XdY as X dice Y times
-//be able to accept d (since its NaN) and then split the 2 values and utilize them
+//added search function
 
 export default App;
