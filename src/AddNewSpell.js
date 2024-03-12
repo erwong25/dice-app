@@ -1,4 +1,10 @@
-export default function AddNewSpell(newSpell, newDice, spells) {
+export default function AddNewSpell(
+  newSpell,
+  newDice,
+  newSpellLevel,
+  newUpcastDice,
+  spells
+) {
   let shouldSpellnameError = spells.has(newSpell);
   let parseDice = newDice.split("d");
   let shouldDiceError = parseDice.some((i) => {
@@ -11,7 +17,7 @@ export default function AddNewSpell(newSpell, newDice, spells) {
     throw new Error("Spell already exists");
   } else {
     let spellsUpdate = spells;
-    spellsUpdate.set(newSpell, [newDice]);
+    spellsUpdate.set(newSpell, [newDice, newSpellLevel, newUpcastDice]);
     return new Map(spellsUpdate);
   }
 }

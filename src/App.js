@@ -9,19 +9,25 @@ import * as React from "react";
 import SpellsButtons from "./SpellsButtons.js";
 import AddNewSpell from "./AddNewSpell.js";
 import DeleteSpell from "./DeleteSpell.js";
+import Upcast from "./Upcast.js";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
   const [error, setError] = useState(null);
   const [spellError, setSpellError] = useState(null);
   const [removalError, setRemovalError] = useState(null);
+  const [upcastError, setUpcastError] = useState(null);
   const [status, setStatus] = useState("typing");
   const [result, setResult] = useState(new Map<number, Array<number>>());
   const [cookie, setCookie] = useState("");
   const [newSpell, setNewSpell] = useState("");
   const [newDice, setNewDice] = useState("");
+  const [newSpellLevel, setNewSpellLevel] = useState("");
+  const [newUpcastDice, setNewUpcastDice] = useState("");
   const [removeSpell, setRemoveSpell] = useState("");
   const [searchValue, setSearchValue] = useState("");
+  const [spellSelected, setSpellSelected] = useState("");
+  const [upcastLevel, setUpcastLevel] = useState("");
   const [spells, setSpells] = useState(
     new Map([
       ["sleep", ["5d8", 1, "2d8"]],
@@ -50,7 +56,9 @@ function App(): React.Node {
     e.preventDefault();
     setStatus("submitting");
     try {
-      setSpells(AddNewSpell(newSpell, newDice, spells));
+      setSpells(
+        AddNewSpell(newSpell, newDice, newSpellLevel, newUpcastDice, spells)
+      );
       spellSort();
       setSpellError(null);
       setStatus("typing");
@@ -70,6 +78,18 @@ function App(): React.Node {
     } catch (err) {
       setStatus("typing");
       setRemovalError(err);
+    }
+  }
+
+  function handleUpcast(e: SyntheticInputEvent<HTMLInputElement>) {
+    e.preventDefault();
+    try {
+      setUpcastLevel(Upcast(spells, upcastLevel, spellSelected));
+      setUpcastError(null);
+      setStatus("typing");
+    } catch (err) {
+      setStatus("typing");
+      setUpcastError(err);
     }
   }
 
@@ -93,6 +113,22 @@ function App(): React.Node {
     setSearchValue(e.target.value);
   }
 
+  function handleSpelllevelareaChange(
+    e: SyntheticInputEvent<HTMLInputElement>
+  ) {
+    setNewSpellLevel(e.target.value);
+  }
+
+  function handleUpcastdiceareaChange(
+    e: SyntheticInputEvent<HTMLInputElement>
+  ) {
+    setNewUpcastDice(e.target.value);
+  }
+
+  function spellSort() {
+    setSpells(new Map([...spells.entries()].sort()));
+  }
+
   document.cookie = "name=oeschger; SameSite=None; Secure";
   document.cookie = "favorite_food=tripe; SameSite=None; Secure";
 
@@ -104,24 +140,30 @@ function App(): React.Node {
     setCookie("");
   }
 
-  function spellSort() {
-    setSpells(new Map([...spells.entries()].sort()));
-  }
-
   return (
     <>
       <div className="App">
         <header className="App-header">
           <p>How many sides?</p>
-          <form onSubmit={handleSubmit}>
+          <form>
             <input
               type="text"
               value={diceSize}
               onChange={handleTextareaChange}
               disabled={status === "submitting"}
             />
+            {spellSelected !== "" && (
+              <button onClick={handleUpcast}>Upcast</button>
+            )}
+            {upcastLevel !== "" && (
+              <p>
+                {spellSelected} upcast to level {upcastLevel}
+              </p>
+            )}
+            {upcastError !== null && <p>{upcastError.message}</p>}
             <br />
             <button
+              onClick={handleSubmit}
               type="submit"
               disabled={diceSize.length === 0 || status === "submitting"}
             >
@@ -139,7 +181,8 @@ function App(): React.Node {
                   <div>
                     <button
                       onClick={() => {
-                        setDiceSize(spells.get(k));
+                        setDiceSize(spells.get(k)[0]);
+                        setSpellSelected(k);
                       }}
                     >
                       {k}
@@ -176,12 +219,34 @@ function App(): React.Node {
               disabled={status === "submitting"}
             />
             <br />
-            {newDice !== "" && newSpell !== "" ? (
+            Spell level:{" "}
+            {/* I want to make this a dropdown, seems like bootstrap is popular option */}
+            <input
+              type="text"
+              value={newSpellLevel}
+              onChange={handleSpelllevelareaChange}
+              disabled={status === "submitting"}
+            />
+            <br />
+            Upcast additional dice:{" "}
+            <input
+              type="text"
+              value={newUpcastDice}
+              onChange={handleUpcastdiceareaChange}
+              disabled={status === "submitting"}
+            />
+            <br />
+            {newDice !== "" &&
+            newSpell !== "" &&
+            newSpellLevel !== "" &&
+            newUpcastDice !== "" ? (
               <button
                 type="submit"
                 disabled={
                   newDice.length === 0 ||
                   newSpell.length === 0 ||
+                  newSpellLevel.length === 0 ||
+                  newUpcastDice.length === 0 ||
                   status === "submitting"
                 }
               >
@@ -225,8 +290,17 @@ function App(): React.Node {
   );
 }
 
+//
+
 //Login, Profiles, DB
+//Add extra values(level, upcast dice amount)
+//---need to add extra values for new spells as well
 //Upcasting (button for upcasting, how much it changes dice (take XdY and add value to Y), level of spell (limit how much it can be cast to higher level))
 //Hide/show spells section (only manual input visible by default)
+//Too many different state variable for error messages, consolidate to 1, have 2nd value to determine which section error is displayed
+
+//Upcast does not change dice yet, need to implement
+//HandleSubmit broken after changing value to array
+//resetting the upcast
 
 export default App;
