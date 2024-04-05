@@ -1,4 +1,4 @@
-export default function DeleteSpell(removeSpell, spells) {
+export default function deleteSpell(removeSpell, spells) {
   let shouldRemovalError = !spells.has(removeSpell);
   if (shouldRemovalError) {
     throw new Error("Spell does not exist");

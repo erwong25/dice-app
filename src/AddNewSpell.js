@@ -1,4 +1,4 @@
-export default function AddNewSpell(
+export default function addNewSpell(
   newSpell,
   newDice,
   newSpellLevel,

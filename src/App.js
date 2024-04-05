@@ -4,12 +4,12 @@ import logo from "./logo.svg";
 import "./App.css";
 import { useState } from "react";
 import DiceResultsSection from "./DiceResultsSection";
-import NumDiceRoll from "./NumDiceRoll.js";
+import numDiceRoll from "./NumDiceRoll.js";
 import * as React from "react";
 import SpellsButtons from "./SpellsButtons.js";
-import AddNewSpell from "./AddNewSpell.js";
-import DeleteSpell from "./DeleteSpell.js";
-import Upcast from "./Upcast.js";
+import addNewSpell from "./AddNewSpell.js";
+import deleteSpell from "./DeleteSpell.js";
+import upcast from "./Upcast.js";
 
 function App(): React.Node {
   const [diceSize, setDiceSize] = useState("");
@@ -42,7 +42,7 @@ function App(): React.Node {
     setStatus("submitting");
     let NumDice = spells.has(diceSize) ? spells.get(diceSize) : diceSize;
     try {
-      setResult(NumDiceRoll(NumDice, result)); //either returns result or throws error
+      setResult(numDiceRoll(NumDice, result)); //either returns result or throws error
       setError(null);
       setStatus("typing");
     } catch (err) {
@@ -57,7 +57,7 @@ function App(): React.Node {
     setStatus("submitting");
     try {
       setSpells(
-        AddNewSpell(newSpell, newDice, newSpellLevel, newUpcastDice, spells)
+        addNewSpell(newSpell, newDice, newSpellLevel, newUpcastDice, spells)
       );
       spellSort();
       setSpellError(null);
@@ -72,7 +72,7 @@ function App(): React.Node {
     e.preventDefault();
     setStatus("submitting");
     try {
-      setSpells(DeleteSpell(removeSpell, spells));
+      setSpells(deleteSpell(removeSpell, spells));
       setRemovalError(null);
       setStatus("typing");
     } catch (err) {
@@ -84,7 +84,7 @@ function App(): React.Node {
   function handleUpcast(e: SyntheticInputEvent<HTMLInputElement>) {
     e.preventDefault();
     try {
-      setUpcastLevel(Upcast(spells, upcastLevel, spellSelected));
+      setUpcastLevel(upcast(spells, upcastLevel, spellSelected));
       setUpcastError(null);
       setStatus("typing");
     } catch (err) {
