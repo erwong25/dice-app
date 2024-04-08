@@ -1,10 +1,8 @@
-export default function deleteSpell(removeSpell, spells) {
-  let shouldRemovalError = !spells.has(removeSpell);
-  if (shouldRemovalError) {
+export default function deleteSpell(spellToRemove, spells) {
+  if (!spells.has(spellToRemove)) {
     throw new Error("Spell does not exist");
-  } else {
-    let spellsUpdate = spells;
-    spellsUpdate.delete(removeSpell);
-    return new Map(spellsUpdate);
   }
+  let spellsUpdate = spells;
+  spellsUpdate.delete(spellToRemove);
+  return new Map(spellsUpdate);
 }

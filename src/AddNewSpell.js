@@ -5,6 +5,9 @@ export default function addNewSpell(
   newUpcastDice,
   spells
 ) {
+  if (spells.has(newSpell)) {
+    throw new Error("Spell already exists");
+  }
   let shouldSpellnameError = spells.has(newSpell);
   let parseDice = newDice.split("d");
   let shouldDiceError = parseDice.some((i) => {
@@ -13,11 +16,8 @@ export default function addNewSpell(
   });
   if (shouldDiceError) {
     throw new Error("Not a valid roll");
-  } else if (shouldSpellnameError) {
-    throw new Error("Spell already exists");
-  } else {
-    let spellsUpdate = spells;
-    spellsUpdate.set(newSpell, [newDice, newSpellLevel, newUpcastDice]);
-    return new Map(spellsUpdate);
   }
+  let spellsUpdate = spells;
+  spellsUpdate.set(newSpell, [newDice, newSpellLevel, newUpcastDice]);
+  return new Map(spellsUpdate);
 }

@@ -24,7 +24,7 @@ function App(): React.Node {
   const [newDice, setNewDice] = useState("");
   const [newSpellLevel, setNewSpellLevel] = useState("");
   const [newUpcastDice, setNewUpcastDice] = useState("");
-  const [removeSpell, setRemoveSpell] = useState("");
+  const [spellToRemove, setSpellToRemove] = useState("");
   const [searchValue, setSearchValue] = useState("");
   const [spellSelected, setSpellSelected] = useState("");
   const [upcastLevel, setUpcastLevel] = useState("");
@@ -40,9 +40,9 @@ function App(): React.Node {
   function handleSubmit(e: Event) {
     e.preventDefault();
     setStatus("submitting");
-    let NumDice = spells.has(diceSize) ? spells.get(diceSize) : diceSize;
+    let numDice = spells.has(diceSize) ? spells.get(diceSize)[0] : diceSize;
     try {
-      setResult(numDiceRoll(NumDice, result)); //either returns result or throws error
+      setResult(numDiceRoll(numDice, result)); //either returns result or throws error
       setError(null);
       setStatus("typing");
     } catch (err) {
@@ -72,7 +72,7 @@ function App(): React.Node {
     e.preventDefault();
     setStatus("submitting");
     try {
-      setSpells(deleteSpell(removeSpell, spells));
+      setSpells(deleteSpell(spellToRemove, spells));
       setRemovalError(null);
       setStatus("typing");
     } catch (err) {
@@ -106,7 +106,7 @@ function App(): React.Node {
   }
 
   function handleRemovalareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
-    setRemoveSpell(e.target.value);
+    setSpellToRemove(e.target.value);
   }
 
   function handleSearchareaChange(e: SyntheticInputEvent<HTMLInputElement>) {
@@ -263,14 +263,14 @@ function App(): React.Node {
             Remove spell:{" "}
             <input
               type="text"
-              value={removeSpell}
+              value={spellToRemove}
               onChange={handleRemovalareaChange}
               disabled={status === "submitting"}
             />
-            {removeSpell !== "" && (
+            {spellToRemove !== "" && (
               <button
                 type="submit"
-                disabled={removeSpell.length === 0 || status === "submitting"}
+                disabled={spellToRemove.length === 0 || status === "submitting"}
               >
                 Remove Spell
               </button>

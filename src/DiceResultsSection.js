@@ -5,8 +5,7 @@ export default function DiceResultsSection(result) {
         <ul>
           {[...result.keys()].map((k) => (
             <li key={k}>
-              You rolled {result.get(k).length}d{k} and got{" "}
-              {result.get(k).join(", ")}
+              You rolled {result.get(k).length}d{k} and got {result.get(k)}
             </li>
           ))}
         </ul>
